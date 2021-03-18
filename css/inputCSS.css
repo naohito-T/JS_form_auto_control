@@ -1,0 +1,64 @@
+/**
+* @author naohito tanaka
+* @description inputフォームのcssです。
+* @summry
+*
+*/
+
+/*************************************
+*************** body *****************
+**************************************/
+
+.body-content {
+  width: 960px;
+  /* 常に真ん中 */
+  margin: 0 auto;
+}
+
+.input-box {
+  width: 100%;
+}
+
+.input-label {
+  width: 50%;
+  display: inline-block;
+}
+
+.required-label {
+  width: 30px;
+  height: 20px;
+  background-color: red;
+  color: #fff;
+  border-radius: 5px;
+}
+
+/*************************************
+*************** error *****************
+**************************************/
+
+.error-message {
+  display: none;
+  border: 1px solid red;
+  background-color: red;
+  color: white;
+  width: 30px;
+  height: 30px;
+  animation: fadeIn 3s;
+}
+
+.error-message {
+}
+
+/* animatinoプロパティ参考 https://qiita.com/7968/items/1d999354e00db53bcbd8 */
+/* keyframesで指定したアニメーションはanimationプロパティで適用される。 */
+@keyframes fadeIn {
+  0% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
