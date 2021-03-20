@@ -13,9 +13,10 @@
   <body>
     <div class="body-content">
       <form action="#" method="POST" id="form" name="form1">
+        <input[type=date]>
         <div class="input-box">
           <label for="name_id" class="input-label"
-            ><span class="required-label">必須</span>お名前:</label
+            ><span class="required-label">必須</span>お名前:漢字ひらがなOK</label
           >
           <input
             type="text"
@@ -26,9 +27,7 @@
             placeholder="名前"
             required
           />
-          <span class="error-message"
-            >数字・ローマ字以外で入力してください。</span
-          >
+          <span class="error-message"></span>
         </div>
         <div class="input-box">
           <label for="name_kana" class="input-label"
@@ -43,7 +42,7 @@
             placeholder="名前カナ"
             required
           />
-          <span class="error-message">カタカナのみで入力してください。</span>
+          <span class="error-message"></span>
         </div>
         <div class="input-box" id="select_box">
           <label for="birthday" class="input-label"

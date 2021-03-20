@@ -20,52 +20,96 @@
  *
  */
 
+// 名前空間定義
+// let InputForms = {}だけでも動作するが let InputForms = InputForms || {};とすることで
+// InputFormsが未定義の場合にだけ新たな名前空間を生成するようになる。
+// || ショートカット演算子
+// let InputForms = InputForms || {};
+
+// この書き方は無名の即時関数
+// (function (window) {
+
+// }(this));
+
 document.addEventListener(
-  "DOMContentLoaded",
+  'DOMContentLoaded',
   () => {
-    "use strict";
+    'use strict';
     // varだとエラーになる。なぜ？ ↑のuse strictか
-    const name = document.getElementById("name_id"); // お名前
-    const nameKana = document.getElementById("name_kana"); // 名前カナ
+    const name = document.getElementById('name_id'); // お名前
+    const nameKana = document.getElementById('name_kana'); // 名前カナ
     // let birthDay1 = document.form1.bday_year.options[document.form1.bday_year.selectedIndex].value; HTMLDocumentが取れるためeventListener無理
     const birthYear = document.form1.bday_year; // 年
     const birthMonth = document.form1.bday_month; // 月
     const birthDay = document.form1.bday_day; // 日
-    const mail = document.getElementById("mail"); // mail
-    const reMail = document.getElementById("re_mail"); // 再mail
-    const tel = document.getElementById("phone_number"); // 電話番号(ハイフン無に変換)
-    const postcal_code = document.getElementById("postcal_code"); // 郵便番号
+    const mail = document.getElementById('mail'); // mail
+    const reMail = document.getElementById('re_mail'); // 再mail
+    const tel = document.getElementById('phone_number'); // 電話番号(ハイフン無に変換)
+    const postcal_code = document.getElementById('postcal_code'); // 郵便番号
     const nameCheck = /^[\Wぁ-んァ-ン一-龠]+?/; // 正規表現 ひらがな・カタカナ・漢字 一-龠 = システム的にご作動があるらしい
     const nameKanaCheck = /^[\u{3000}-\u{301C}\u{30A1}-\u{30F6}\u{30FB}-\u{30FE}]+$/mu; // 正規表現 カタカナのみ UTF-16で対応
     const mailCheck = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/; // 正規表現mail
 
+    const nameErrorText = '数字・ローマ字以外で入力してください。';
+    const kanaErrorText = 'カタカナのみで入力してください。';
+    const mailErrorText = 'メールアドレスの形式ではありません。';
+    const reMailErrorText = '同じメールアドレスを入力してください。';
+
+    /**
+     *
+     * @param {number} spanNumber 対象のspan
+     * @param {String} errorText エラーの内容
+     * @return Dom error span(HTML)
+     */
+    const getErrorSpan = (spanNumber, errorText) => {
+      let span = document.getElementsByClassName('error-message')[spanNumber];
+      span.innerText = `${errorText}`;
+      return span;
+    };
+
+    /**
+     * 対象の正規表現でチェック後、エラーがあれば対象のspanを表示する。
+     * @callback onEvent
+     * @param {Object} spanNumber errorspan index
+     * @param {Object} errorText  errorspan text
+     * @param {Object} regexCheck any_regex_object
+     * @param {Array}  argument   option
+     * @param {DOMEvent} e        Dom Event
+     * @return
+     * returnが返すものは値そのものではなく、関数の呼び出した場所に戻すという動作
+     * 分割代入(オブジェクト)
+     */
+    const onEvent = ({ spanNumber, errorText, regexCheck }, ...argument) => {
+      return (e) => {
+        let str = e.target.value;
+        let [flag, option] = argument;
+        console.log(flag);
+        console.log(option);
+        let errorSpan = getErrorSpan(spanNumber, errorText);
+        regexCheck.test(str)
+          ? (errorSpan.style.display = 'none')
+          : (errorSpan.style.display = 'inline');
+      };
+    };
+
     // 名前確認
     name.addEventListener(
-      "change",
-      (e) => {
-        // 値がなかった場合に、デフォルトで設定してあるエラーメッセージを入れるなどできそう。
-        let str = e.target.value;
-        let errorSpan = document.getElementsByClassName("error-message")[0];
-        if (nameCheck.test(str)) {
-          errorSpan.style.display = "none";
-        } else {
-          errorSpan.style.display = "inline";
-        }
-      },
-      true
+      'change',
+      onEvent({
+        spanNumber: 0,
+        errorText: nameErrorText,
+        regexCheck: nameCheck,
+      }),
+      false
     );
     // 名前カナ確認
     nameKana.addEventListener(
-      "change",
-      (e) => {
-        let str = e.target.value;
-        let errorSpan = document.getElementsByClassName("error-message")[1];
-        if (nameKanaCheck.test(str)) {
-          errorSpan.style.display = "none";
-        } else {
-          errorSpan.style.display = "inline";
-        }
-      },
+      'change',
+      onEvent({
+        spanNumber: 1,
+        errorText: kanaErrorText,
+        regexCheck: nameKanaCheck,
+      }),
       false
     );
 
@@ -78,12 +122,12 @@ document.addEventListener(
     let observer = new MutationObserver(() => {
       if (birthYear.value && birthMonth.value && birthDay.value) {
         // nullの場合はfalseと判定されるJs仕様
-        console.log("成功");
+        console.log('成功');
       } else {
-        console.log("失敗");
+        console.log('失敗');
       }
     });
-    let elem = document.getElementById("select_box");
+    let elem = document.getElementById('select_box');
     const config = {
       attributes: true,
       childList: true,
@@ -98,68 +142,85 @@ document.addEventListener(
         dt.getFullYear() == y && dt.getMonth() == m - 1 && dt.getDate() == d
       );
     }
-    /**
-     * @author naohito tanaka
-     * @description メールアドレスをチェックします。
-     *
-     *
-     */
+    // mail check
+    // mail.addEventListener(
+    //   'change',
+    //   (e) => {
+    //     let errorSpan = document.getElementsByClassName('error-message')[2];
+    //     let str = e.target.value;
+    //     if (mailCheck.test(str)) {
+    //       if (re_mail.value) {
+    //         // 再メールフォームに値がセットされているか ''はfalseと判定されるjs仕様
+    //         if (str == re_mail.value) {
+    //           // 再メールフォームと値が同じが
+    //           let errorSpan = document.getElementsByClassName(
+    //             'error-message'
+    //           )[3];
+    //           errorSpan.style.display = 'none';
+    //         } else {
+    //           let errorSpan = document.getElementsByClassName(
+    //             'error-message'
+    //           )[3];
+    //           errorSpan.style.display = 'inline';
+    //         }
+    //       }
+    //       errorSpan.style.display = 'none'; // メールアドレスの形式はあっているけど相手の値がまだセットされていない。
+    //     } else {
+    //       errorSpan.style.display = 'inline';
+    //     }
+    //   },
+    //   false
+    // );
     mail.addEventListener(
-      "change",
-      (e) => {
-        let errorSpan = document.getElementsByClassName("error-message")[2];
-        let str = e.target.value;
-        if (mailCheck.test(str)) {
-          if (re_mail.value) {
-            // 再メールフォームに値がセットされているか ''はfalseと判定されるjs仕様
-            if (str == re_mail.value) {
-              // 再メールフォームと値が同じが
-              let errorSpan = document.getElementsByClassName(
-                "error-message"
-              )[3];
-              errorSpan.style.display = "none";
-            } else {
-              let errorSpan = document.getElementsByClassName(
-                "error-message"
-              )[3];
-              errorSpan.style.display = "inline";
-            }
-          }
-          errorSpan.style.display = "none"; // メールアドレスの形式はあっているけど相手の値がまだセットされていない。
-        } else {
-          errorSpan.style.display = "inline";
-        }
-      },
+      'change',
+      onEvent(
+        {
+          spanNumber: 2,
+          errorText: mailErrorText,
+          regexCheck: mailCheck,
+        },
+        [1, 'aaa']
+      ),
       false
     );
 
     reMail.addEventListener(
-      "change",
-      (e) => {
-        let str = e.target.value;
-        let errorSpan = document.getElementsByClassName("error-message")[4];
-        if (mailCheck.test(str)) {
-          if (mail.value) {
-            // メールフォームに値がセットされているかつメールフォームと値が同じか
-            if (str == mail.value) {
-              let errorSpan = document.getElementsByClassName(
-                "error-message"
-              )[5];
-              errorSpan.style.display = "none";
-            } else {
-              let errorSpan = document.getElementsByClassName(
-                "error-message"
-              )[5];
-              errorSpan.style.display = "inline"; // メールアドレスが双方で違う
-            }
-          }
-          errorSpan.style.display = "none"; // メールアドレスの形式はあっているけどよい
-        } else {
-          errorSpan.style.display = "inline"; // メールアドレスの形式が違うエラー
-        }
-      },
+      'change',
+      onEvent({
+        spanNumber: 4,
+        errorText: mailErrorText,
+        regexCheck: mailCheck,
+      }),
       false
     );
+    // re:mail check
+    // reMail.addEventListener(
+    //   'change',
+    //   (e) => {
+    //     let str = e.target.value;
+    //     let errorSpan = document.getElementsByClassName('error-message')[4];
+    //     if (mailCheck.test(str)) {
+    //       if (mail.value) {
+    //         // メールフォームに値がセットされているかつメールフォームと値が同じか
+    //         if (str == mail.value) {
+    //           let errorSpan = document.getElementsByClassName(
+    //             'error-message'
+    //           )[5];
+    //           errorSpan.style.display = 'none';
+    //         } else {
+    //           let errorSpan = document.getElementsByClassName(
+    //             'error-message'
+    //           )[5];
+    //           errorSpan.style.display = 'inline'; // メールアドレスが双方で違う
+    //         }
+    //       }
+    //       errorSpan.style.display = 'none'; // メールアドレスの形式はあっているけどよい
+    //     } else {
+    //       errorSpan.style.display = 'inline'; // メールアドレスの形式が違うエラー
+    //     }
+    //   },
+    //   false
+    // );
     /**
      * @author naohito tanaka
      * @description 電話番号確認メソッド
@@ -167,17 +228,17 @@ document.addEventListener(
      * @return   tel.value(全角なら半角へ変換した数字)
      */
     tel.addEventListener(
-      "change",
+      'change',
       (e) => {
-        let num = e.target.value.replace(/[━.*‐.*―.*－.*\-.*ー.*\-]/gi, ""); //ハイフンは空にしてから正規表現に通す
-        let errorSpan = document.getElementsByClassName("error-message")[6];
+        let num = e.target.value.replace(/[━.*‐.*―.*－.*\-.*ー.*\-]/gi, ''); //ハイフンは空にしてから正規表現に通す
+        let errorSpan = document.getElementsByClassName('error-message')[6];
         if (numericCheck(num)) {
           let str = strHalfConversion(num);
           console.log(str);
           tel.value = str;
-          errorSpan.style.display = "none";
+          errorSpan.style.display = 'none';
         } else {
-          errorSpan.style.display = "inline";
+          errorSpan.style.display = 'inline';
         }
       },
       false
@@ -189,7 +250,7 @@ document.addEventListener(
      * @return   郵便番号から検索された住所
      */
 
-    postcal_code.addEventListener("change", (e) => {
+    postcal_code.addEventListener('change', (e) => {
       let tar = strHalfConversion(e.target.value);
       // XMLHttpRequetのインスタンスを作成
       var req = new XMLHttpRequest();
@@ -199,8 +260,8 @@ document.addEventListener(
         }
       };
       req.open(
-        "GET",
-        "http://zipcloud.ibsnet.co.jp/api/search?zipcode=" + tar,
+        'GET',
+        'http://zipcloud.ibsnet.co.jp/api/search?zipcode=' + tar,
         true
       ); // この時点で通信処理は実行されていない。
       req.send(); // sendメソッドで通信

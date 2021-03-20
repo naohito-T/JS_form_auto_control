@@ -1,4 +1,65 @@
-form auto control
+# JS form auto control
+
+## Descripton
+
+クライアントサイドでの検索欄のチェック機能を提供します。
+
+## DEMO
+
+"hoge"の魅力が直感的に伝えわるデモ動画や図解を載せる
+
+## Features
+
+"hoge"のセールスポイントや差別化などを説明する
+
+## Requirement
+
+"hoge"を動かすのに必要なライブラリなどを列挙する
+
+- huga 3.5.2
+- hogehuga 1.0.2
+
+## Installation
+
+Requirement で列挙したライブラリなどのインストール方法を説明する
+
+```bash
+pip install huga_package
+```
+
+## Usage
+
+DEMO の実行方法など、"hoge"の基本的な使い方を説明する
+
+```bash
+git clone https://github.com/hoge/~
+cd examples
+python demo.py
+```
+
+# Note
+
+注意点などがあれば書く
+
+# Author
+
+作成情報を列挙する
+
+- 作成者
+- 所属
+- E-mail
+
+# License
+
+ライセンスを明示する
+
+"hoge" is under [MIT license](https://en.wikipedia.org/wiki/MIT_License).
+
+社内向けなら社外秘であることを明示してる
+
+"hoge" is Confidential.
+
+## 要件
 
 お問い合わせ form 要件定義
 ■ 概要
@@ -13,18 +74,18 @@ https://developer.mozilla.org/ja/docs/Web/JavaScript/Guide/Regular_Expressions
 
 ============必要な項目================
 
-名字 名前
-カナ カナ
-生年月日
-メルアド
-メルアド再入力
-電話番号
-郵便番号
-住所
-お問い合わせ内容
-利用規約
-送信ボタン
-HTML5 の仕様で form 内で enter を押下すると勝手に submit されるためそれを拒否する。
+**名字 名前**
+**カナ カナ**
+**生年月日**
+**メルアド**
+**メルアド再入力**
+**電話番号**
+**郵便番号**
+**住所**
+**お問い合わせ内容**
+**利用規約**
+**送信ボタン**
+**HTML5 の仕様で form 内で enter を押下すると勝手に submit されるためそれを拒否する。**
 
 ===========必要な技術===============
 
@@ -46,21 +107,19 @@ required 属性 必ず入力してほしいやつにつける。入力してい�
 label タグの書き方は 2 種類ある。
 
 1. labele タグで挟む方法
+   `<label><input type="text" name="hello" />男</label>`
 2. for 属性を使う方法
+   ` <label for="text_id">名前:</label><input type="text" name="name" id="text_id" />`
 
-3. <label><input type="text" name="hello" />男</label>
+#### 2.は id で紐付ける方法のためやめておく。js だけに使用するという理念に使用。
 
-4. <label for="text_id">名前:</label>
-   <input type="text" name="name" id="text_id" />
-
-   2.は id で紐付ける方法のためやめておく。js だけに使用するという理念に使用。
-   ■input タグ
-   設定する属性
-   type
-   name
-   autocomplete
-   placeholder
-   required
+■input タグ
+設定する属性
+type
+name
+autocomplete
+placeholder
+required
 
 参考資料
 
