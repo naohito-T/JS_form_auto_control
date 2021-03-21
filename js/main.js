@@ -55,6 +55,42 @@ document.addEventListener(
     const mailErrorText = 'メールアドレスの形式ではありません。';
     const reMailErrorText = '同じメールアドレスを入力してください。';
 
+    // 参考 https://qiita.com/Tsuyoshi84/items/c50fbbf30a2af387efdf
+    // throwステートメントを使用してエラーを発生させる際、文字列を直接throwするべきではありません。
+    /**
+     *
+     * @param {String} str
+     * @desc  パラメータ値に渡された文字列でエラーを出力します。
+     * @return エラー出力
+     */
+    const getErrorThrow = (str) => {
+      throw new Error(`${str}`);
+    };
+
+    /**
+     *
+     * @param {*} param
+     * @param {*} param2
+     * @desc  引き数のパラメータを比較し真偽値を返します。
+     * @returns {boolean}
+     * @memo  mail同値ではない場合、返したいが普遍性がなくなってしまう。
+     */
+    const sameValueCheck = (param, param2) => {
+      // まず値がセットされているか。その後同値確認
+      if (param && param2) {
+        return param === param2 ? true : false;
+      } else {
+        getErrorThrow('値が入力されていません。');
+      }
+    };
+
+    // optionコーナー switch文代替 https://pisuke-code.com/javascript-switch-alternatives/
+    const options = {
+      1: sameValueCheck,
+      // '2': ,
+      // '3': ,
+    };
+
     /**
      *
      * @param {number} spanNumber 対象のspan
@@ -68,27 +104,30 @@ document.addEventListener(
     };
 
     /**
-     * 対象の正規表現でチェック後、エラーがあれば対象のspanを表示する。
      * @callback onEvent
-     * @param {Object} spanNumber errorspan index
-     * @param {Object} errorText  errorspan text
-     * @param {Object} regexCheck any_regex_object
-     * @param {Array}  argument   option
-     * @param {DOMEvent} e        Dom Event
+     * @dict 対象の正規表現でチェック後、エラーがあれば対象のspanを表示する。
+     * @param {Object} spanNumber          errorspan index
+     * @param {Object} errorText           errorspan text
+     * @param {Object} regexFormat         any_regex_object
+     * @param {Object} option(flagMethod)  Specify the method of options
+     * @param {Object} option(flagValue)   Set the value of the option
+     * @param {DOMEvent} e                 Dom Event
      * @return
      * returnが返すものは値そのものではなく、関数の呼び出した場所に戻すという動作
      * 分割代入(オブジェクト)
      */
-    const onEvent = ({ spanNumber, errorText, regexCheck }, ...argument) => {
+    const onEvent = ({ spanNumber, errorText, regexFormat, ...option }) => {
       return (e) => {
         let str = e.target.value;
-        let [flag, option] = argument;
-        console.log(flag);
-        console.log(option);
+        let { flagMethod, flagValue } = option || undefined;
         let errorSpan = getErrorSpan(spanNumber, errorText);
-        regexCheck.test(str)
+        regexFormat.test(str)
           ? (errorSpan.style.display = 'none')
           : (errorSpan.style.display = 'inline');
+        // option時以下実行
+        if (!(flagMethod === undefined)) {
+          options[flagMethod](str, flagValue.value);
+        }
       };
     };
 
@@ -98,7 +137,7 @@ document.addEventListener(
       onEvent({
         spanNumber: 0,
         errorText: nameErrorText,
-        regexCheck: nameCheck,
+        regexFormat: nameCheck,
       }),
       false
     );
@@ -108,7 +147,31 @@ document.addEventListener(
       onEvent({
         spanNumber: 1,
         errorText: kanaErrorText,
-        regexCheck: nameKanaCheck,
+        regexFormat: nameKanaCheck,
+      }),
+      false
+    );
+    // メール確認
+    mail.addEventListener(
+      'change',
+      onEvent({
+        spanNumber: 2,
+        errorText: mailErrorText,
+        regexFormat: mailCheck,
+        flagMethod: 1,
+        flagValue: reMail,
+      }),
+      false
+    );
+    // メール確認(再)
+    reMail.addEventListener(
+      'change',
+      onEvent({
+        spanNumber: 4,
+        errorText: mailErrorText,
+        regexFormat: mailCheck,
+        flagMethod: 1,
+        flagValue: mail, // なぜかmail.valueとこちらで展開するとだめ
       }),
       false
     );
@@ -142,85 +205,7 @@ document.addEventListener(
         dt.getFullYear() == y && dt.getMonth() == m - 1 && dt.getDate() == d
       );
     }
-    // mail check
-    // mail.addEventListener(
-    //   'change',
-    //   (e) => {
-    //     let errorSpan = document.getElementsByClassName('error-message')[2];
-    //     let str = e.target.value;
-    //     if (mailCheck.test(str)) {
-    //       if (re_mail.value) {
-    //         // 再メールフォームに値がセットされているか ''はfalseと判定されるjs仕様
-    //         if (str == re_mail.value) {
-    //           // 再メールフォームと値が同じが
-    //           let errorSpan = document.getElementsByClassName(
-    //             'error-message'
-    //           )[3];
-    //           errorSpan.style.display = 'none';
-    //         } else {
-    //           let errorSpan = document.getElementsByClassName(
-    //             'error-message'
-    //           )[3];
-    //           errorSpan.style.display = 'inline';
-    //         }
-    //       }
-    //       errorSpan.style.display = 'none'; // メールアドレスの形式はあっているけど相手の値がまだセットされていない。
-    //     } else {
-    //       errorSpan.style.display = 'inline';
-    //     }
-    //   },
-    //   false
-    // );
-    mail.addEventListener(
-      'change',
-      onEvent(
-        {
-          spanNumber: 2,
-          errorText: mailErrorText,
-          regexCheck: mailCheck,
-        },
-        [1, 'aaa']
-      ),
-      false
-    );
 
-    reMail.addEventListener(
-      'change',
-      onEvent({
-        spanNumber: 4,
-        errorText: mailErrorText,
-        regexCheck: mailCheck,
-      }),
-      false
-    );
-    // re:mail check
-    // reMail.addEventListener(
-    //   'change',
-    //   (e) => {
-    //     let str = e.target.value;
-    //     let errorSpan = document.getElementsByClassName('error-message')[4];
-    //     if (mailCheck.test(str)) {
-    //       if (mail.value) {
-    //         // メールフォームに値がセットされているかつメールフォームと値が同じか
-    //         if (str == mail.value) {
-    //           let errorSpan = document.getElementsByClassName(
-    //             'error-message'
-    //           )[5];
-    //           errorSpan.style.display = 'none';
-    //         } else {
-    //           let errorSpan = document.getElementsByClassName(
-    //             'error-message'
-    //           )[5];
-    //           errorSpan.style.display = 'inline'; // メールアドレスが双方で違う
-    //         }
-    //       }
-    //       errorSpan.style.display = 'none'; // メールアドレスの形式はあっているけどよい
-    //     } else {
-    //       errorSpan.style.display = 'inline'; // メールアドレスの形式が違うエラー
-    //     }
-    //   },
-    //   false
-    // );
     /**
      * @author naohito tanaka
      * @description 電話番号確認メソッド
@@ -243,6 +228,7 @@ document.addEventListener(
       },
       false
     );
+
     /**
      * @author naohito tanaka
      * @description 電話番号確認メソッド
