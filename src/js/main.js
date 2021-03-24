@@ -30,30 +30,42 @@
 // (function (window) {
 
 // }(this));
+/**
+ * @author naohito tanaka
+ * @description 数字のみ確認
+ * @param       ハイフン無しの全角数字or半角数字
+ * {n} で「連続n回の出現」を意味 '98765' という「数字5個」に \d{3} がマッチする。 文字列全体では数字5個ですが、 '987'
+ */
+//  function numericCheck(num) {
+//   return num.match(/^(0[5-9]0[0-9]{8}|0[1-9][1-9][0-9]{7})$/)
+//     ? true
+//     : false;
+// }
 
 document.addEventListener(
   'DOMContentLoaded',
   () => {
     'use strict';
-    // varだとエラーになる。なぜ？ ↑のuse strictか
     const name = document.getElementById('name_id'); // お名前
     const nameKana = document.getElementById('name_kana'); // 名前カナ
-    // let birthDay1 = document.form1.bday_year.options[document.form1.bday_year.selectedIndex].value; HTMLDocumentが取れるためeventListener無理
-    const birthYear = document.form1.bday_year; // 年
-    const birthMonth = document.form1.bday_month; // 月
-    const birthDay = document.form1.bday_day; // 日
     const mail = document.getElementById('mail'); // mail
     const reMail = document.getElementById('re_mail'); // 再mail
     const tel = document.getElementById('phone_number'); // 電話番号(ハイフン無に変換)
     const postcal_code = document.getElementById('postcal_code'); // 郵便番号
+
+    // regexs
     const nameCheck = /^[\Wぁ-んァ-ン一-龠]+?/; // 正規表現 ひらがな・カタカナ・漢字 一-龠 = システム的にご作動があるらしい
     const nameKanaCheck = /^[\u{3000}-\u{301C}\u{30A1}-\u{30F6}\u{30FB}-\u{30FE}]+$/mu; // 正規表現 カタカナのみ UTF-16で対応
     const mailCheck = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/; // 正規表現mail
+    const hyphenCheck = /[━.*‐.*―.*－.*\-.*ー.*\-]/gi; // 数字のハイフンが対象
+    const numberCheck = /^(0[5-9]0[0-9]{8}|0[1-9][1-9][0-9]{7})$/;
 
+    // error messages
     const nameErrorText = '数字・ローマ字以外で入力してください。';
     const kanaErrorText = 'カタカナのみで入力してください。';
     const mailErrorText = 'メールアドレスの形式ではありません。';
     const reMailErrorText = '同じメールアドレスを入力してください。';
+    const numErrorText = '固定電話10桁〜携帯電話11桁の数値を入力してください。';
 
     // 参考 https://qiita.com/Tsuyoshi84/items/c50fbbf30a2af387efdf
     // throwステートメントを使用してエラーを発生させる際、文字列を直接throwするべきではありません。
@@ -84,11 +96,29 @@ document.addEventListener(
       }
     };
 
+    /**
+     * @param {String} str
+     * @desc  全角(英数字)→→半角(英数字)
+     * @returns {String}
+     * @memo  文字コード上で、全角英数字から65248引くと半角英数字になります。
+     * また、処理範囲を正規表現で[Ａ-Ｚａ-ｚ０-９]と指定していますが、例えば[０-９]とすれば、変換対象を全角数字に限定できます
+     * 全角英数の文字コードから65248個前が半角英数の文字コードとなっているため文字コードから65248引いて変換する。
+     * 置換対象を以下とする
+     * 大文字ローマ時
+     * 小文字ローマ時
+     * 全角数字
+     */
+    const strHalfConversion = (str) => {
+      str.replace(/[A-Za-z０-９]/g, (s) => {
+        String.fromCharCode(s.charCodeAt(0) - 65248);
+      });
+    };
+
     // optionコーナー switch文代替 https://pisuke-code.com/javascript-switch-alternatives/
     const options = {
-      1: sameValueCheck,
-      // '2': ,
-      // '3': ,
+      1: sameValueCheck, // 同値チェック
+      2: getErrorThrow, // エラー
+      3: strHalfConversion, // 英数字(全角)→英数字(半角)
     };
 
     /**
@@ -114,7 +144,7 @@ document.addEventListener(
      * @param {DOMEvent} e                 Dom Event
      * @return
      * returnが返すものは値そのものではなく、関数の呼び出した場所に戻すという動作
-     * 分割代入(オブジェクト)
+     * 分割代入(オブジェクト)を引数でしている。
      */
     const onEvent = ({ spanNumber, errorText, regexFormat, ...option }) => {
       return (e) => {
@@ -124,9 +154,9 @@ document.addEventListener(
         regexFormat.test(str)
           ? (errorSpan.style.display = 'none')
           : (errorSpan.style.display = 'inline');
-        // option時以下実行
+        // option時 以下実行
         if (!(flagMethod === undefined)) {
-          options[flagMethod](str, flagValue.value);
+          let a = options[flagMethod](str, flagValue.value);
         }
       };
     };
@@ -148,8 +178,7 @@ document.addEventListener(
         spanNumber: 1,
         errorText: kanaErrorText,
         regexFormat: nameKanaCheck,
-      }),
-      false
+      })
     );
     // メール確認
     mail.addEventListener(
@@ -160,8 +189,7 @@ document.addEventListener(
         regexFormat: mailCheck,
         flagMethod: 1,
         flagValue: reMail,
-      }),
-      false
+      })
     );
     // メール確認(再)
     reMail.addEventListener(
@@ -172,66 +200,38 @@ document.addEventListener(
         regexFormat: mailCheck,
         flagMethod: 1,
         flagValue: mail, // なぜかmail.valueとこちらで展開するとだめ
-      }),
-      false
+      })
     );
-
-    /**
-     * @author naohito tanaka
-     * @description 日付関数メソッド
-     *
-     *
-     */
-    let observer = new MutationObserver(() => {
-      if (birthYear.value && birthMonth.value && birthDay.value) {
-        // nullの場合はfalseと判定されるJs仕様
-        console.log('成功');
-      } else {
-        console.log('失敗');
-      }
-    });
-    let elem = document.getElementById('select_box');
-    const config = {
-      attributes: true,
-      childList: true,
-      characterData: true,
-      subtree: true,
-    };
-    observer.observe(elem, config);
-
-    function ValidDate(y, m, d) {
-      dt = new Date(y, m - 1, d);
-      return (
-        dt.getFullYear() == y && dt.getMonth() == m - 1 && dt.getDate() == d
-      );
-    }
-
-    /**
-     * @author naohito tanaka
-     * @description 電話番号確認メソッド
-     * @param    tel.value
-     * @return   tel.value(全角なら半角へ変換した数字)
-     */
+    // 電話番号
+    // tel.addEventListener(
+    //   'change',
+    //   (e) => {
+    //     let num = e.target.value.replace(hyphenCheck, ''); //ハイフンは空にしてから正規表現に通す
+    //     let errorSpan = document.getElementsByClassName('error-message')[6];
+    //     if (numericCheck(num)) {
+    //       let str = strHalfConversion(num);
+    //       console.log(str);
+    //       tel.value = str;
+    //       errorSpan.style.display = 'none';
+    //     } else {
+    //       errorSpan.style.display = 'inline';
+    //     }
+    //   },
+    //   false
+    // );
+    // 内容としてはハイフンが入っててもよく、数字の桁、番号を確認し全角でも半角で渡す。
     tel.addEventListener(
       'change',
-      (e) => {
-        let num = e.target.value.replace(/[━.*‐.*―.*－.*\-.*ー.*\-]/gi, ''); //ハイフンは空にしてから正規表現に通す
-        let errorSpan = document.getElementsByClassName('error-message')[6];
-        if (numericCheck(num)) {
-          let str = strHalfConversion(num);
-          console.log(str);
-          tel.value = str;
-          errorSpan.style.display = 'none';
-        } else {
-          errorSpan.style.display = 'inline';
-        }
-      },
-      false
+      onEvent({
+        spanNumber: 6,
+        errorText: numErrorText,
+        regexFormat: numberCheck,
+      })
     );
 
     /**
      * @author naohito tanaka
-     * @description 電話番号確認メソッド
+     * @description 郵便番号メソッド
      * @param    postcal_code
      * @return   郵便番号から検索された住所
      */
@@ -247,7 +247,7 @@ document.addEventListener(
       };
       req.open(
         'GET',
-        'http://zipcloud.ibsnet.co.jp/api/search?zipcode=' + tar,
+        'https://zipcloud.ibsnet.co.jp/api/search?zipcode=' + tar,
         true
       ); // この時点で通信処理は実行されていない。
       req.send(); // sendメソッドで通信
@@ -286,44 +286,13 @@ document.addEventListener(
         ? true
         : false;
     }
-    /**
-     * @author naohito tanaka
-     * @description 数字のみ確認
-     * @param       ハイフン無しの全角数字or半角数字
-     * {n} で「連続n回の出現」を意味 '98765' という「数字5個」に \d{3} がマッチする。 文字列全体では数字5個ですが、 '987'
-     */
-    function numericCheck(num) {
-      return num.match(/^(0[5-9]0[0-9]{8}|0[1-9][1-9][0-9]{7})$/)
-        ? true
-        : false;
-    }
+
     // ↓↓ ES2015のアロー演算子記述
     //  引数が一つだけの場合はカッコが省略できるのと、本文がreturn文だけのときはreterun文ブロックごと省略が可能。
     // 引数のカッコについては色々と意見がわかれている。コードフォーマッタのPrettierでは引数が一つでもカッコを省略しない設定がデフォルトになった。
     const numCheck = (n) =>
       num.match(/^(0[5-9]0[0-9]{8}|0[1-9][1-9][0-9]{7})$/) ? true : false;
-    /**
-     * @author naohito tanaka
-     * @description 全角(英数字)→→半角(英数字)
-     * 文字コード上で、全角英数字から65248引くと半角英数字になります。
-     * また、処理範囲を正規表現で[Ａ-Ｚａ-ｚ０-９]と指定していますが、例えば[０-９]とすれば、変換対象を全角数字に限定できます
-     * 全角英数の文字コードから65248個前が半角英数の文字コードとなっているため文字コードから65248引いて変換する。
-     * 置換対象を以下とする
-     * 大文字ローマ時
-     * 小文字ローマ時
-     * 全角数字
-     */
-    //    function strHalfConversion(str) {
-    //        return str.replace(/[A-Za-z０-９]/g, s => {
-    //           return String.fromCharCode(s.charCodeAt(0) - 65248); // 10進数の場合
-    //        });
-    //    }
-    // ES6へ変換
-    const strHalfConversion = (str) => {
-      str.replace(/[A-Za-z０-９]/g, (s) => {
-        String.fromCharCode(s.charCodeAt(0) - 65248);
-      });
-    };
+
     /**
      * @author naohito tanaka
      * @description 郵便番号確認
@@ -341,15 +310,6 @@ document.addEventListener(
      * HTML5の仕様でform内でEnterを押下されると勝手にsubmitされる
      * 不要のためそれを拒否する。
      */
-    //     document.onkeypress = enter;
-    //     function enter(){
-    //     if( window.event.keyCode == 13 ){
-    //     return false;
-    //       }
-    //     }              // ↓↓ES6に変換
-    // ES6に変換
-    // ?は条件 (三項) 演算子という
-    // JavaScript では唯一の、3 つのオペランドをとる演算子
     document.onkeypress = () => (window.event.keyCode !== 13 ? true : false);
   },
   false
