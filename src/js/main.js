@@ -1,6 +1,6 @@
 /**
  * @author naohito tanaka
- * @version  0.1
+ * @version  1.0.0
  * @description form値をリアルタイムにチェックします。
  * HTMLCollectionは配列LikeなやつaddEventListener使えない。
  * プリミティブ型の値を定義するのには通常リテラルとは文字通りという意味の単語でプログラミング言語においてはソースコードに数値や文字列をベタ書きしてその値を表現する式であることからこう呼ばれる
@@ -16,7 +16,7 @@
  *
  * これからやったほうがいいリファクタリング
  * マジックナンバーを消す。
- *
+ * if else文はどちらも正常系の処理の時に使用する。異常系が条件の時は早期リターンする。
  *
  */
 
@@ -58,7 +58,7 @@ document.addEventListener(
     const nameKanaCheck = /^[\u{3000}-\u{301C}\u{30A1}-\u{30F6}\u{30FB}-\u{30FE}]+$/mu; // 正規表現 カタカナのみ UTF-16で対応
     const mailCheck = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/; // 正規表現mail
     const hyphenCheck = /[━.*‐.*―.*－.*\-.*ー.*\-]/gi; // 数字のハイフンが対象
-    const numberCheck = /^(0[5-9]0[0-9]{8}|0[1-9][1-9][0-9]{7})$/;
+    const numberCheck = /^(0[５−９5-9]0[０−９0-9]{8}|0[１-９|1-9][１-９|1-9][０-９0-9]{7})$/;
 
     // error messages
     const nameErrorText = '数字・ローマ字以外で入力してください。';
@@ -88,12 +88,10 @@ document.addEventListener(
      * @memo  mail同値ではない場合、返したいが普遍性がなくなってしまう。
      */
     const sameValueCheck = (param, param2) => {
-      // まず値がセットされているか。その後同値確認
-      if (param && param2) {
-        return param === param2 ? true : false;
-      } else {
+      if (!param && param2) {
         getErrorThrow('値が入力されていません。');
       }
+      return param === param2 ? true : false;
     };
 
     /**
@@ -107,8 +105,12 @@ document.addEventListener(
      * 大文字ローマ時
      * 小文字ローマ時
      * 全角数字
+     * ガード節を使用
      */
     const strHalfConversion = (str) => {
+      if (!str) {
+        return getErrorThrow('引数がありません。');
+      }
       str.replace(/[A-Za-z０-９]/g, (s) => {
         String.fromCharCode(s.charCodeAt(0) - 65248);
       });
@@ -145,21 +147,44 @@ document.addEventListener(
      * @return
      * returnが返すものは値そのものではなく、関数の呼び出した場所に戻すという動作
      * 分割代入(オブジェクト)を引数でしている。
+     *
+     * そのままメソッドを渡して、
      */
     const onEvent = ({ spanNumber, errorText, regexFormat, ...option }) => {
       return (e) => {
         let str = e.target.value;
-        let { flagMethod, flagValue } = option || undefined;
+        let { flag, flagValue } = option || undefined; // ない値に対して
         let errorSpan = getErrorSpan(spanNumber, errorText);
         regexFormat.test(str)
           ? (errorSpan.style.display = 'none')
           : (errorSpan.style.display = 'inline');
         // option時 以下実行
-        if (!(flagMethod === undefined)) {
-          let a = options[flagMethod](str, flagValue.value);
+        // オプション実行があるか確認しそのメソッドを呼びださないといけない。
+        if (!(flag === undefined)) {
+          switch (flag) {
+            case 1:
+              options[flag](str, flagValue.value);
+              break;
+            case 2:
+              options[flag]();
+              break;
+            case 3:
+              let a = options[flag](str);
+              console.log(a);
+          }
         }
       };
     };
+    //　電話番号確認
+    tel.addEventListener(
+      'change',
+      onEvent({
+        spanNumber: 6,
+        errorText: numErrorText,
+        regexFormat: numberCheck,
+        flag: 3,
+      })
+    );
 
     // 名前確認
     name.addEventListener(
@@ -187,7 +212,7 @@ document.addEventListener(
         spanNumber: 2,
         errorText: mailErrorText,
         regexFormat: mailCheck,
-        flagMethod: 1,
+        flag: 1,
         flagValue: reMail,
       })
     );
@@ -198,34 +223,8 @@ document.addEventListener(
         spanNumber: 4,
         errorText: mailErrorText,
         regexFormat: mailCheck,
-        flagMethod: 1,
+        flag: 1,
         flagValue: mail, // なぜかmail.valueとこちらで展開するとだめ
-      })
-    );
-    // 電話番号
-    // tel.addEventListener(
-    //   'change',
-    //   (e) => {
-    //     let num = e.target.value.replace(hyphenCheck, ''); //ハイフンは空にしてから正規表現に通す
-    //     let errorSpan = document.getElementsByClassName('error-message')[6];
-    //     if (numericCheck(num)) {
-    //       let str = strHalfConversion(num);
-    //       console.log(str);
-    //       tel.value = str;
-    //       errorSpan.style.display = 'none';
-    //     } else {
-    //       errorSpan.style.display = 'inline';
-    //     }
-    //   },
-    //   false
-    // );
-    // 内容としてはハイフンが入っててもよく、数字の桁、番号を確認し全角でも半角で渡す。
-    tel.addEventListener(
-      'change',
-      onEvent({
-        spanNumber: 6,
-        errorText: numErrorText,
-        regexFormat: numberCheck,
       })
     );
 
