@@ -1,182 +1,73 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>inputform リアルタイム入力</title>
-    <link rel="stylesheet" href="./src/css/inputCSS.css" />
-  </head>
-  <body>
-    <div class="body-content">
-      <form action="#" method="POST" id="form" name="form1">
-        <div class="input-box">
-          <label for="name_id" class="input-label"
-            ><span class="required-label">必須</span
-            >お名前:漢字ひらがなOK</label
-          >
-          <input
-            type="text"
-            name="name"
-            class="input"
-            id="name_id"
-            autocomplete="name"
-            placeholder="名前"
-            required
-          />
-          <span class="error-message"></span>
-        </div>
-        <div class="input-box">
-          <label for="name_kana" class="input-label"
-            ><span class="required-label">必須</span>お名前(カナ):</label
-          >
-          <input
-            type="text"
-            name=""
-            class="input"
-            id="name_kana"
-            autocomplete="on"
-            placeholder="名前カナ"
-            required
-          />
-          <span class="error-message"></span>
-        </div>
-        <div class="input-box" id="select_box">
-          <label for="birthday" class="input-label"
-            ><span class="required-label">必須</span>生年月日:</label
-          >
-          <select
-            name="bday_year"
-            class="select"
-            id="year"
-            autocomplete="bday-year"
-            required
-          ></select>
-          年
-          <select
-            name="bday_month"
-            id="month"
-            autocomplete="bday-month"
-            class="input"
-            required
-          ></select>
-          月
-          <select
-            name="bday_day"
-            id="day"
-            autocomplete="bday-day"
-            class="input"
-            required
-          ></select>
-          日
-        </div>
-        <div class="input-box">
-          <label class="input-label"
-            ><span class="required-label">必須</span>メールアドレス:</label
-          >
-          <input
-            type="email"
-            name="email"
-            class="input"
-            id="mail"
-            placeholder="example@mail.com"
-            autocomplete="email"
-            required
-          />
-          <span class="error-message"
-            >メールアドレスの形式ではありません。</span
-          >
-          <span class="error-message error-animation"
-            >同じメールアドレスを入力してください。</span
-          >
-        </div>
-        <div class="input-box">
-          <label class="input-label"
-            ><span class="required-label">必須</span
-            >メールアドレス再入力:</label
-          >
-          <input
-            type="email"
-            name=""
-            class="input"
-            id="re_mail"
-            placeholder="example@mail.com"
-            autocomplete="email"
-            required
-          />
-          <span class="error-message"
-            >メールアドレスの形式ではありません。</span
-          >
-          <span class="error-message"
-            >同じメールアドレスを入力してください。</span
-          >
-        </div>
-        <div class="input-box">
-          <label class="input-label" for="phone_number"
-            ><span class="required-label">必須</span>電話番号:</label
-          >
-          <input
-            type="tel"
-            name="tel"
-            class="input"
-            id="phone_number"
-            autocomplete="tel"
-            placeholder="電話番号(ハイフン無)"
-            required
-          />
-          <span class="error-message"></span>
-        </div>
-        <div class="input-box">
-          <label for="postcal_code" class="input-label"
-            ><span class="required-label">必須</span>郵便番号:</label
-          >
-          <input
-            type="text"
-            name="postal-code"
-            class="input"
-            id="postcal_code"
-            autocomplete="postal-code"
-            placeholder="郵便番号(ハイフン無)"
-            required
-          />
-        </div>
-        <div class="input-box">
-          <label class="input-label" for="address"
-            ><span class="required-label">必須</span
-            >都道府県・市区町村・番地:</label
-          >
-          <input
-            type="text"
-            name="address-level1"
-            class="input"
-            id="address"
-            autocomplete="address-level1"
-            placeholder="都道府県 市区町村 番地"
-          />
-          <span class="error-message"
-            >メールアドレスの形式ではありません。</span
-          >
-        </div>
-        <div class="input-box">
-          <label class="input-label" for="address-level2"
-            ><span class="required-label">任意</span>建物名・号室:</label
-          >
-          <input
-            type="text"
-            name="address-level4"
-            class="input"
-            id="address-level2"
-            autocomplete="address-level4"
-            placeholder="建物名・号室"
-          />
-        </div>
-        <br />
-        <input type="submit" value="送信(どこにも送信しない)" />
-      </form>
-    </div>
-    <script src="./src/js/select.js"></script>
-    <script src="./src/js/main.js"></script>
-  </body>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>inputform リアルタイム入力</title>
+  <link rel="stylesheet" href="./src/css/inputCSS.css" />
+</head>
+
+<body>
+  <div class="body-content">
+    <form action="#" method="POST" id="form" name="form1">
+      <div class="input-box">
+        <label for="name_id" class="input-label"><span class="required-label">必須</span>お名前:</label>
+        <input type="text" name="name" class="input" id="name_id" autocomplete="name" placeholder="名前" required />
+        <span class="error-message"></span>
+      </div>
+      <div class="input-box">
+        <label for="name_kana" class="input-label"><span class="required-label">必須</span>お名前(カナ):</label>
+        <input type="text" name="" class="input" id="name_kana" autocomplete="on" placeholder="名前カナ" required />
+        <span class="error-message"></span>
+      </div>
+      <div class="input-box" id="select_box">
+        <label for="birthday" class="input-label"><span class="required-label">必須</span>生年月日:</label>
+        <select id="year" autocomplete="bday-year" required></select>年
+        <select id="month" autocomplete="bday-month" class="input" required></select>月
+        <select id="day" autocomplete="bday-day" class="input" required></select>日
+      </div>
+      <div class="input-box">
+        <label class="input-label"><span class="required-label">必須</span>メールアドレス:</label>
+        <input type="email" name="email" class="input" id="mail" placeholder="example@mail.com" autocomplete="email"
+          required />
+        <span class="error-message"></span>
+      </div>
+      <div class="input-box">
+        <label class="input-label"><span class="required-label">必須</span>メールアドレス再入力:</label>
+        <input type="email" name="" class="input" id="re_mail" placeholder="example@mail.com" autocomplete="email"
+          required />
+        <span class="error-message"></span>
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="phone_number"><span class="required-label">必須</span>電話番号:</label>
+        <input type="tel" name="tel" class="input" id="phone_number" autocomplete="tel" placeholder="電話番号(ハイフン無)"
+          required />
+        <span class="error-message"></span>
+      </div>
+      <div class="input-box">
+        <label for="postcal_code" class="input-label"><span class="required-label">必須</span>郵便番号:</label>
+        <input type="text" name="postal-code" class="input" id="postcal_code" autocomplete="postal-code"
+          placeholder="郵便番号(ハイフン無)" required />
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="address"><span class="required-label">必須</span>都道府県・市区町村・番地:</label>
+        <input type="text" name="address-level1" class="input" id="address" autocomplete="address-level1"
+          placeholder="都道府県 市区町村 番地" />
+        <span class="error-message">メールアドレスの形式ではありません。</span>
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="address-level2"><span class="required-label">任意</span>建物名・号室:</label>
+        <input type="text" name="address-level4" class="input" id="address-level2" autocomplete="address-level4"
+          placeholder="建物名・号室" />
+      </div>
+      <br />
+      <input type="submit" value="送信(どこにも送信しない)" />
+    </form>
+  </div>
+  <script src="./src/js/select.js"></script>
+  <script src="./src/js/main.js" type="module"></script>
+</body>
+
 </html>

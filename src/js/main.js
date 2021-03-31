@@ -17,6 +17,7 @@
  * これからやったほうがいいリファクタリング
  * マジックナンバーを消す。
  * if else文はどちらも正常系の処理の時に使用する。異常系が条件の時は早期リターンする。
+ * デコレーター・クロージャーもどちらも使えるかもしれない
  *
  */
 
@@ -58,7 +59,7 @@ document.addEventListener(
     const nameKanaCheck = /^[\u{3000}-\u{301C}\u{30A1}-\u{30F6}\u{30FB}-\u{30FE}]+$/mu; // 正規表現 カタカナのみ UTF-16で対応
     const mailCheck = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/; // 正規表現mail
     const hyphenCheck = /[━.*‐.*―.*－.*\-.*ー.*\-]/gi; // 数字のハイフンが対象
-    const numberCheck = /^(0[５−９5-9]0[０−９0-9]{8}|0[１-９|1-9][１-９|1-9][０-９0-9]{7})$/;
+    const numberCheck = /^(0|０[5-9５-９]0|０[0-9０-９]{8}|0-０[1-9１-９][1-9１-９][0-9０-９]{7})/;
 
     // error messages
     const nameErrorText = '数字・ローマ字以外で入力してください。';
@@ -71,9 +72,9 @@ document.addEventListener(
     // throwステートメントを使用してエラーを発生させる際、文字列を直接throwするべきではありません。
     /**
      *
-     * @param {String} str
+     * @param {string} str
      * @desc  パラメータ値に渡された文字列でエラーを出力します。
-     * @return エラー出力
+     * @returns エラー出力
      */
     const getErrorThrow = (str) => {
       throw new Error(`${str}`);
@@ -111,8 +112,8 @@ document.addEventListener(
       if (!str) {
         return getErrorThrow('引数がありません。');
       }
-      str.replace(/[A-Za-z０-９]/g, (s) => {
-        String.fromCharCode(s.charCodeAt(0) - 65248);
+      return str.replace(/[A-Za-z０-９]/g, (s) => {
+        return String.fromCharCode(s.charCodeAt(0) - 65248);
       });
     };
 
@@ -169,23 +170,15 @@ document.addEventListener(
               options[flag]();
               break;
             case 3:
-              let a = options[flag](str);
-              console.log(a);
+              let result = options[flag](str);
+              e.target.value = result;
+              break;
+            default:
+              console.log('error');
           }
         }
       };
     };
-    //　電話番号確認
-    tel.addEventListener(
-      'change',
-      onEvent({
-        spanNumber: 6,
-        errorText: numErrorText,
-        regexFormat: numberCheck,
-        flag: 3,
-      })
-    );
-
     // 名前確認
     name.addEventListener(
       'change',
@@ -193,8 +186,7 @@ document.addEventListener(
         spanNumber: 0,
         errorText: nameErrorText,
         regexFormat: nameCheck,
-      }),
-      false
+      })
     );
     // 名前カナ確認
     nameKana.addEventListener(
@@ -225,6 +217,17 @@ document.addEventListener(
         regexFormat: mailCheck,
         flag: 1,
         flagValue: mail, // なぜかmail.valueとこちらで展開するとだめ
+      })
+    );
+
+    //　電話番号確認
+    tel.addEventListener(
+      'change',
+      onEvent({
+        spanNumber: 6,
+        errorText: numErrorText,
+        regexFormat: numberCheck,
+        flag: 3,
       })
     );
 

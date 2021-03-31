@@ -1,8 +1,6 @@
 /**
-* @author naohito tanaka
-* @description inputフォームのcssです。
-* @summry
-*
+* @author naohito-T
+* @description inputForm to CSS
 */
 
 /*************************************
@@ -44,9 +42,6 @@
   width: 30px;
   height: 30px;
   animation: fadeIn 3s;
-}
-
-.error-message {
 }
 
 /* animatinoプロパティ参考 https://qiita.com/7968/items/1d999354e00db53bcbd8 */
