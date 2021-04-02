@@ -55,7 +55,6 @@
         <label class="input-label" for="address"><span class="required-label">必須</span>都道府県・市区町村・番地:</label>
         <input type="text" name="address-level1" class="input" id="address" autocomplete="address-level1"
           placeholder="都道府県 市区町村 番地" />
-        <span class="error-message">メールアドレスの形式ではありません。</span>
       </div>
       <div class="input-box">
         <label class="input-label" for="address-level2"><span class="required-label">任意</span>建物名・号室:</label>
@@ -66,8 +65,41 @@
       <input type="submit" value="送信(どこにも送信しない)" />
     </form>
   </div>
-  <script src="./src/js/select.js"></script>
-  <script src="./src/js/main.js" type="module"></script>
+
+  <!-- scriptのtypeをmoduleにするとファイルへのアクセス方法が、httpプロトコルではなく、fileプロトコルになってしまいます。
+    最近のChromeはローカルファイルへのhttpdを通さないアクセスを許可していないのでエラーとなってしまうのだとおもいます。-->
+  <script src="./src/js/main.js"></script>
+  <!-- <script src="./src/js/select.js"></script> -->
+  <script type="module">
+    import { getSelect } from './src/js/select.js';
+    getSelect();
+  </script>
 </body>
 
 </html>
+
+<!-- 原因がわかりましたので、
+簡易サーバ建てるのに便利(MAMPじゃなくていい)
+% php -S 127.0.0.1:8080
+http://localhost:3000/index.html
+なぜかポートが3000になる。
+
+回答させていただきます。
+maisumakunさんのコメントにもあります通り、
+CORSエラーです。
+ES Moduleは、どうやら、JavaScript上での直接ファイルアクセスとなるようですね。
+つまりは、ローカルでは、同じディレクトリ上でも、そもそもドメインがないので、
+異ドメイン間と認識されるのかと思われます。
+そうなると、異ドメイン間のスクリプトからのファイル直でのアクセスは、ブラウザによってセキュリティが働くため、基本行えません。
+
+下記に、ローカルでも、スクリプトのファイル直アクセスが可能な方法を二つほど記載します。
+
+ブラウザのオプション起動
+オプション起動によって、ローカルファイルへのアクセスを許可させる方法です。
+やり方はご自身でお調べください。
+ローカルサーバーを立てる
+ローカルサーバーを立てて起動すれば、同ドメインとなるため、CORSエラーはでません。
+（検証済）
+XAMPP（Windows）、MAMP（Mac）が有名です。
+こちらもご自身でお調べください。
+って、最近同じ回答何回もしてる気がする。 -->

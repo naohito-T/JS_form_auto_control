@@ -7,7 +7,7 @@
  *         3. `<select id="day" name="day"></select>`
  *         ※注意 <select>タグより下でscriptを読み込むこと。
  */
-(() => {
+export const getSelect = () => {
   // 4の倍数の年はうるう年でよいが、2100年や2200年は平年として扱う(西暦の年号が100で割り切れて400で割り切れない年)
   // DOM
   const yearBox = document.getElementById('year'); // select id="year"
@@ -48,9 +48,8 @@
     let optionDom;
     for (let i = startNum; i <= endNum; i++) {
       i === current
-        ? (option = '<option value="' + i + '" selected>' + i + '</option>')
-        : (option = '<option value="' + i + '">' + i + '</option>');
-      optionDom += option;
+        ? (optionDom += '<option value="' + i + '" selected>' + i + '</option>')
+        : (optionDom += '<option value="' + i + '">' + i + '</option>');
     }
     selectDom.insertAdjacentHTML('beforeend', optionDom);
   };
@@ -76,4 +75,4 @@
   getSelect('year', 1900, thisYear, thisYear);
   getSelect('month', 1, 12, thisMonth);
   getSelect('day', 1, datesOfYear[thisMonth - 1], thisDay);
-})();
+};
