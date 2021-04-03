@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport"
     content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>inputform リアルタイム入力</title>
+  <title>検索form クライアントチェック</title>
   <link rel="stylesheet" href="./src/css/inputCSS.css" />
 </head>
 
@@ -72,17 +72,8 @@
       <input type="submit" value="送信(どこにも送信しない)" />
     </form>
   </div>
-
-  <!-- scriptのtypeをmoduleにするとファイルへのアクセス方法が、httpプロトコルではなく、fileプロトコルになってしまいます。
-    最近のChromeはローカルファイルへのhttpdを通さないアクセスを許可していないのでエラーとなってしまうのだとおもいます。-->
-  <!-- <script src="./src/js/select.js"></script> -->
-  <script type="module">
-    import { main } from './src/js/main.js';
-    import { getSelect } from './src/js/modules/select.js';
-    main();
-    getSelect();
-  </script>
-  <script src="src/js/modules/postCode.js"></script>
+  <!-- webpack後 -->
+  <script src="./public/js/bundle.js"></script>
 </body>
 
 </html>
