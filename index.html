@@ -50,16 +50,23 @@
         <label for="postcal_code" class="input-label"><span class="required-label">必須</span>郵便番号:</label>
         <input type="text" name="postal-code" class="input" id="postcal_code" autocomplete="postal-code"
           placeholder="郵便番号(ハイフン無)" required />
+        <span class="post-error-message"></span>
+        <button id="postcal_search" type="button">住所検索</button>
       </div>
       <div class="input-box">
         <label class="input-label" for="address"><span class="required-label">必須</span>都道府県・市区町村・番地:</label>
-        <input type="text" name="address-level1" class="input" id="address" autocomplete="address-level1"
-          placeholder="都道府県 市区町村 番地" />
+        <input type="text" name="address1" class="input" id="address1" autocomplete="address-level1"
+          placeholder="都道府県" />
       </div>
       <div class="input-box">
-        <label class="input-label" for="address-level2"><span class="required-label">任意</span>建物名・号室:</label>
-        <input type="text" name="address-level4" class="input" id="address-level2" autocomplete="address-level4"
-          placeholder="建物名・号室" />
+        <label class="input-label" for="address"><span class="required-label">必須</span>市区町村:</label>
+        <input type="text" name="address2" class="input" id="address2" autocomplete="address-level1"
+          placeholder="市区町村" />
+      </div>
+      <div class="input-box">
+        <label class="input-label" for="address-level2"><span class="required-label">必須</span>町域番地:</label>
+        <input type="text" name="address3" class="input" id="address3" autocomplete="address-level4"
+          placeholder="町域番地" />
       </div>
       <br />
       <input type="submit" value="送信(どこにも送信しない)" />
@@ -68,12 +75,14 @@
 
   <!-- scriptのtypeをmoduleにするとファイルへのアクセス方法が、httpプロトコルではなく、fileプロトコルになってしまいます。
     最近のChromeはローカルファイルへのhttpdを通さないアクセスを許可していないのでエラーとなってしまうのだとおもいます。-->
-  <script src="./src/js/main.js"></script>
   <!-- <script src="./src/js/select.js"></script> -->
   <script type="module">
-    import { getSelect } from './src/js/select.js';
+    import { main } from './src/js/main.js';
+    import { getSelect } from './src/js/modules/select.js';
+    main();
     getSelect();
   </script>
+  <script src="src/js/modules/postCode.js"></script>
 </body>
 
 </html>

@@ -32,26 +32,13 @@
 // (function (window) {
 
 // }(this));
-/**
- * @author naohito tanaka
- * @description 数字のみ確認
- * @param       ハイフン無しの全角数字or半角数字
- * {n} で「連続n回の出現」を意味 '98765' という「数字5個」に \d{3} がマッチする。 文字列全体では数字5個ですが、 '987'
- */
-//  function numericCheck(num) {
-//   return num.match(/^(0[5-9]0[0-9]{8}|0[1-9][1-9][0-9]{7})$/)
-//     ? true
-//     : false;
-// }
-
-(() => {
-  'use strict';
+export const main = () => {
   const name = document.getElementById('name_id'); // お名前
   const nameKana = document.getElementById('name_kana'); // 名前カナ
   const mail = document.getElementById('mail'); // mail
   const reMail = document.getElementById('re_mail'); // 再mail
   const tel = document.getElementById('phone_number'); // 電話番号(ハイフン無に変換)
-  const postcal_code = document.getElementById('postcal_code'); // 郵便番号
+  // const postcal_code = document.getElementById('postcal_code'); // 郵便番号
 
   // regexs
   const nameCheck = /^[\Wぁ-んァ-ン一-龠]+?/; // 正規表現 ひらがな・カタカナ・漢字 一-龠 = システム的にご作動があるらしい
@@ -229,30 +216,6 @@
     })
   );
 
-  /**
-   * @author naohito tanaka
-   * @description 郵便番号メソッド
-   * @param    postcal_code
-   * @return   郵便番号から検索された住所
-   */
-
-  postcal_code.addEventListener('change', (e) => {
-    let tar = strHalfConversion(e.target.value);
-    // XMLHttpRequetのインスタンスを作成
-    var req = new XMLHttpRequest();
-    req.onreadystatechange = function () {
-      if (this.readyState == 4 && this.status == 200) {
-        console.log(this.response);
-      }
-    };
-    req.open(
-      'GET',
-      'https://zipcloud.ibsnet.co.jp/api/search?zipcode=' + tar,
-      true
-    ); // この時点で通信処理は実行されていない。
-    req.send(); // sendメソッドで通信
-  });
-  //=========================関数=====================================//
   // match()
   // matchメドッドの引数に設定する正規表現に「g」をつけるかどうかで結果がかわる。
   // gを付けない場合は指定した正規表現にマッチした最初の文字列に関する情報を戻り値として返却します
@@ -283,9 +246,9 @@
    * ^と$をつければ桁数制限ができる。
    * \d = [0-9] 全角数字も通るっぽい。
    */
-  function postalCodeCheck(num) {
-    return num.match(/^\d{3}-\d{4}$/) ? true : false;
-  }
+  // function postalCodeCheck(num) {
+  //   return num.match(/^\d{3}-\d{4}$/) ? true : false;
+  // }
   /**
    * @author naohito tanaka
    * @description form内Enterキー拒否メソッド
@@ -293,4 +256,4 @@
    * 不要のためそれを拒否する。
    */
   document.onkeypress = () => (window.event.keyCode !== 13 ? true : false);
-})();
+};
