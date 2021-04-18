@@ -1,12 +1,13 @@
 export const postCode = () => {
-  const head = document.getElementsByTagName('head');
-  const script = document.createElement('script');
+  const head = document.getElementsByTagName('head'); // head tag road
+  const script = document.createElement('script'); // script tag create
 
   script.setAttribute(
+    // script tag option set
     'src',
     'https://cdn.jsdelivr.net/npm/fetch-jsonp@1.1.3/build/fetch-jsonp.min.js'
   );
-  script.setAttribute('type', 'text/javascript');
+  script.setAttribute('type', 'text/javascript'); // script tag option set
   script.addEventListener('load', () => {
     const postcalSearchButton = document.getElementById('postcal_search');
     postcalSearchButton.addEventListener('click', () => {
