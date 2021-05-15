@@ -4,5 +4,8 @@
 # history
 .history/
 
+# bk
+bk/
+
 # node_modules
 node_modules/**/*

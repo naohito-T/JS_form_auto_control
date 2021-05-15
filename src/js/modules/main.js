@@ -21,6 +21,45 @@
  * Jsでのスコープ作成は関数のみモジュールパターンを作成するのは匿名クロージャー
  *
  */
+// match()
+// matchメドッドの引数に設定する正規表現に「g」をつけるかどうかで結果がかわる。
+// gを付けない場合は指定した正規表現にマッチした最初の文字列に関する情報を戻り値として返却します
+// マッチした文字列がない場合はnullを戻り値として返却します。
+// gをつける場合「g」をつける場合は、文字列に対し、指定した正規表現にマッチした文字列全てを配列形式で戻り値として返却
+/**
+ * @author naohito tanaka
+ * @description カタカナ正規表現
+ * UTF8でのカタカナの範囲は以下の通り
+ * 0x3000 ~ 0x301C	全角スペース、句読点などの記号
+ * 0x30A1 ~ 0x30F6	カタカナ本体
+ * 0x30FB ~ 0x30FE	「・」、「ー」、「ヽ」、「ヾ」
+ * + は一回以上の出現
+ * /[]/が終わった後に付与するものをフラグという
+ * ↓/[]/mu
+ * m 複数行検索
+ * u unicodeパターンをユニコードのコードポイントの連続として扱う。
+ */
+// function regexpKanaTest(str) {
+//     return ( str.match( /^[\u{3000}-\u{301C}\u{30A1}-\u{30F6}\u{30FB}-\u{30FE}]+$/mu ))? true : false;
+// }
+
+/**
+ * @author naohito tanaka
+ * @description 郵便番号確認
+ * @param       ハイフン有りの半角数字(全角数字は変換しておく)
+ * {n} で「連続n回の出現」を意味 '98765' という「数字5個」に \d{3} がマッチする。 文字列全体では数字5個ですが、 '987'
+ * ^と$をつければ桁数制限ができる。
+ * \d = [0-9] 全角数字も通るっぽい。
+ */
+// function postalCodeCheck(num) {
+//   return num.match(/^\d{3}-\d{4}$/) ? true : false;
+// }
+/**
+ * @author naohito tanaka
+ * @description form内Enterキー拒否メソッド
+ * HTML5の仕様でform内でEnterを押下されると勝手にsubmitされる
+ * 不要のためそれを拒否する。
+ */
 
 // 名前空間定義
 // let InputForms = {}だけでも動作するが let InputForms = InputForms || {};とすることで
@@ -32,6 +71,8 @@
 // (function (window) {
 
 // }(this));
+import { NoDataError } from './errorsClass';
+
 export const main = () => {
   const name = document.getElementById('name_id'); // お名前
   const nameKana = document.getElementById('name_kana'); // 名前カナ
@@ -42,10 +83,13 @@ export const main = () => {
 
   // regexs
   const nameCheck = /^[\Wぁ-んァ-ン一-龠]+?/; // 正規表現 ひらがな・カタカナ・漢字 一-龠 = システム的にご作動があるらしい
-  const nameKanaCheck = /^[\u{3000}-\u{301C}\u{30A1}-\u{30F6}\u{30FB}-\u{30FE}]+$/mu; // 正規表現 カタカナのみ UTF-16で対応
-  const mailCheck = /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/; // 正規表現mail
+  const nameKanaCheck =
+    /^[\u{3000}-\u{301C}\u{30A1}-\u{30F6}\u{30FB}-\u{30FE}]+$/mu; // 正規表現 カタカナのみ UTF-16で対応
+  const mailCheck =
+    /^[A-Za-z0-9]{1}[A-Za-z0-9_.-]*@{1}[A-Za-z0-9_.-]{1,}\.[A-Za-z0-9]{1,}$/; // 正規表現mail
   const hyphenCheck = /[━.*‐.*―.*－.*\-.*ー.*\-]/gi; // 数字のハイフンが対象
-  const numberCheck = /^(0|０[5-9５-９]0|０[0-9０-９]{8}|0-０[1-9１-９][1-9１-９][0-9０-９]{7})/;
+  const numberCheck =
+    /^(0|０[5-9５-９]0|０[0-9０-９]{8}|0-０[1-9１-９][1-9１-９][0-9０-９]{7})/;
 
   // error messages
   const nameErrorText = '数字・ローマ字以外で入力してください。';
@@ -75,8 +119,11 @@ export const main = () => {
    * @memo  mail同値ではない場合、返したいが普遍性がなくなってしまう。
    */
   const sameValueCheck = (param, param2) => {
+    // if (!param && param2) {
+    //   getErrorThrow('値が入力されていません。');
+    // }
     if (!param && param2) {
-      getErrorThrow('値が入力されていません。');
+      throw new NoDataError('値が入力されていません。');
     }
     return param === param2 ? true : false;
   };
@@ -215,45 +262,5 @@ export const main = () => {
       flag: 3,
     })
   );
-
-  // match()
-  // matchメドッドの引数に設定する正規表現に「g」をつけるかどうかで結果がかわる。
-  // gを付けない場合は指定した正規表現にマッチした最初の文字列に関する情報を戻り値として返却します
-  // マッチした文字列がない場合はnullを戻り値として返却します。
-  // gをつける場合「g」をつける場合は、文字列に対し、指定した正規表現にマッチした文字列全てを配列形式で戻り値として返却
-  /**
-   * @author naohito tanaka
-   * @description カタカナ正規表現
-   * UTF8でのカタカナの範囲は以下の通り
-   * 0x3000 ~ 0x301C	全角スペース、句読点などの記号
-   * 0x30A1 ~ 0x30F6	カタカナ本体
-   * 0x30FB ~ 0x30FE	「・」、「ー」、「ヽ」、「ヾ」
-   * + は一回以上の出現
-   * /[]/が終わった後に付与するものをフラグという
-   * ↓/[]/mu
-   * m 複数行検索
-   * u unicodeパターンをユニコードのコードポイントの連続として扱う。
-   */
-  // function regexpKanaTest(str) {
-  //     return ( str.match( /^[\u{3000}-\u{301C}\u{30A1}-\u{30F6}\u{30FB}-\u{30FE}]+$/mu ))? true : false;
-  // }
-
-  /**
-   * @author naohito tanaka
-   * @description 郵便番号確認
-   * @param       ハイフン有りの半角数字(全角数字は変換しておく)
-   * {n} で「連続n回の出現」を意味 '98765' という「数字5個」に \d{3} がマッチする。 文字列全体では数字5個ですが、 '987'
-   * ^と$をつければ桁数制限ができる。
-   * \d = [0-9] 全角数字も通るっぽい。
-   */
-  // function postalCodeCheck(num) {
-  //   return num.match(/^\d{3}-\d{4}$/) ? true : false;
-  // }
-  /**
-   * @author naohito tanaka
-   * @description form内Enterキー拒否メソッド
-   * HTML5の仕様でform内でEnterを押下されると勝手にsubmitされる
-   * 不要のためそれを拒否する。
-   */
   document.onkeypress = () => (window.event.keyCode !== 13 ? true : false);
 };
